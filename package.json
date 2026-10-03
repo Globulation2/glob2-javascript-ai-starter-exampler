@@ -8,7 +8,8 @@
     "watch": "node scripts/build.mjs --watch",
     "check": "npm run build && node scripts/check.mjs",
     "types": "tsc --allowJs --checkJs --noEmit --moduleResolution bundler --module esnext --target es2020 src/*.js",
-    "test": "node --test scripts/test-build.mjs"
+    "test": "node --test scripts/test-build.mjs",
+    "qualify": "npm run build && node scripts/qualify.mjs"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

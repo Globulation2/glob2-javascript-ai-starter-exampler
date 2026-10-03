@@ -1,4 +1,5 @@
-let pending = null;
+let pending = null,
+  clearing = null;
 /** @param {import('../types/glob2-v2').ContextV2} ctx
  * @param {import('../types/glob2-v2').ManagedBuilding[]} buildings */
 export function technology(ctx, buildings) {
@@ -16,10 +17,22 @@ export function technology(ctx, buildings) {
     "technology.upgradedBuildings",
     buildings.filter((b) => !b.construction && b.level > 0).length,
   );
+  const clearFlag = buildings.find((b) => b.shortType === 10);
   if (pending !== null) {
     const status = ctx.actions.status(pending);
-    if (status && ["pending", "issued", "constructing"].includes(status.status))
+    ctx.telemetry.set(
+      "technology.actionStatus",
+      status ? status.status : "expired",
+    );
+    if (status && status.reason)
+      ctx.telemetry.set("technology.actionReason", status.reason);
+    if (
+      status &&
+      ["pending", "issued", "constructing"].includes(status.status)
+    ) {
+      if (clearFlag && status.status === "constructing") clearFlag.workers = 0;
       return;
+    }
     pending = null;
   }
   const damaged = buildings.find(
@@ -45,9 +58,38 @@ export function technology(ctx, buildings) {
           !b.construction &&
           b.level < 2 &&
           trainedFor(b.level) &&
-          [0, 1, 3, 5].includes(b.shortType),
+          [1, 3, 4, 5].includes(b.shortType),
       ));
   if (candidate) {
+    // Wheat and trees can grow back into space reserved at placement time.
+    // A clearing flag maintains the upgrade area; ordinary rejected upgrade
+    // orders are retried while the workers clear it. Stone cannot be cleared.
+    const variant = ctx.game
+      .buildingTypes()
+      .find((t) => t.id === candidate.type);
+    const x =
+      (candidate.x + Math.floor(variant.width / 2)) % ctx.game.map.width;
+    const y =
+      (candidate.y + Math.floor(variant.height / 2)) % ctx.game.map.height;
+    if (clearFlag) {
+      clearFlag.x = x;
+      clearFlag.y = y;
+      clearFlag.range = 4;
+      clearFlag.workers = 3;
+      clearFlag.clearingResources = [true, true, true, false, true];
+    } else if (
+      clearing === null ||
+      !["pending", "issued"].includes(
+        ctx.actions.status(clearing)?.status || "",
+      )
+    ) {
+      clearing = ctx.actions.build({
+        building: "clearingflag",
+        region: { x, y, width: 1, height: 1 },
+        workers: 3,
+        range: 4,
+      });
+    }
     pending = ctx.actions.upgrade({
       building: candidate.ref,
       workers: 3,

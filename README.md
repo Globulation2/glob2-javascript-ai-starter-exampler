@@ -87,3 +87,12 @@ Before sharing changes, run build, types, and engine check; then play fixed-seed
 local matches and save/resume mid-construction. Verify food growth, training,
 upgrades, exploration, attack flags and guard zoning in telemetry/replays. Winning
 is not required. Keep screenshots and replay evidence outside source modules.
+
+## Qualify a strategy change
+
+Run `GLOB2_BIN=/absolute/path/to/glob2 npm run qualify`. This runs a fixed-seed
+complete-game scenario and checks food expansion, training, completed upgrades,
+exploration, attack planning and zoning. It then compares every resumed team/entity
+record with uninterrupted play using one and four compute workers. The command
+retains logs, saves, replays and checksum traces under ignored `artifacts/`.
+It fails if a behavior is not exercised, even if the script never throws.

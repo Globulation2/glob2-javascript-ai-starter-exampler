@@ -16,7 +16,9 @@ and ctx.telemetry for diagnostics. No timers, filesystem, network or runtime imp
 Use native placement and spatial services. Treat no placement and rejected gameplay
 orders as normal outcomes. Bound scans, inspect action status and account for queued
 desired values versus observed values. Run ordinary fixed-seed games and save/resume
-checks after strategy changes; retain evidence of all demonstrated capabilities.
+checks after strategy changes with `GLOB2_BIN=/absolute/path/to/glob2 npm run qualify`;
+retain its evidence of all demonstrated capabilities. The scenario must exercise
+completed upgrades and attacks, not merely run without exceptions.
 
 Do not change the declaration copies independently: update from the engine revision
 in engine.json and run scripts/check-api.mjs. Keep the bundler's atomic publish step.

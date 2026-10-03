@@ -50,6 +50,7 @@ export function military(ctx, buildings, units, home) {
       });
   }
   if (explorer) {
+    ctx.telemetry.set("military.exploring", true);
     // Explore gradually beyond home, wrapping at the map seams. Flags themselves
     // may be placed at exact coordinates; unlike buildings they have no footprint.
     // Visit an eight-by-eight grid over the entire torus, not just nearby land.
