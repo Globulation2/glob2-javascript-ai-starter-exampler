@@ -1,11 +1,14 @@
-let pending = null,
-  clearing = null;
+// Action IDs are plain saved data. Never retain the candidate building handle.
+let pending = null;
+let clearing = null;
 /** @param {import('../types/glob2-v2').ContextV2} ctx
  * @param {import('../types/glob2-v2').ManagedBuilding[]} buildings */
 export function technology(ctx, buildings) {
   const workers = ctx.game
     .units({ team: ctx.myTeam, limit: 512 })
     .filter((u) => u.type === 0);
+  // levels[6] is the BUILD skill, not the unit type or building level. A
+  // next-level construction site needs workers trained above its current level.
   /** @param {number} level */
   const trainedFor = (level) =>
     workers.filter((u) => u.levels[6] > level).length >= 5;

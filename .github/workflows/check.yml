@@ -16,5 +16,5 @@ jobs:
       - run: node scripts/check-api.mjs
       - uses: actions/upload-artifact@v4
         with:
-          name: javascript-ai-example
+          name: glob2-javascript-ai-starter-exampler
           path: dist/example.js

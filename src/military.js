@@ -1,6 +1,7 @@
-let exploration = null,
-  attack = null,
-  direction = 0;
+// Save action IDs and the survey index, never callback-local flag handles.
+let exploration = null;
+let attack = null;
+let direction = 0;
 /** @param {import('../types/glob2-v2').ContextV2} ctx
  * @param {import('../types/glob2-v2').ManagedBuilding[]} buildings
  * @param {import('../types/glob2').Unit[]} units
@@ -35,6 +36,8 @@ export function military(ctx, buildings, units, home) {
     );
   const target = enemies[0] || hotspots[0];
   if (target && warriors >= 6) {
+    // This marker records that an attack was planned. Dispatch can still fail;
+    // inspect the action status and replay to confirm the resulting combat.
     ctx.telemetry.set("military.attacking", true);
     if (war) {
       war.x = target.x;

@@ -1,6 +1,6 @@
 # Developing this Glob2 AI
 
-Use `npm ci`, `npm run build`, `npm run types`, and `GLOB2_BIN=/path/to/glob2 npm run check`.
+Use Node.js 22 or newer. Run `npm ci`, `npm run build`, `npm run types`, `npm test`, and `GLOB2_BIN=/path/to/glob2 npm run check`.
 Read README.md and types/glob2-v2.d.ts before changing strategy. Engine API profile 2
 is required. Do not invent engine methods, variant IDs, or observation permissions.
 
@@ -22,3 +22,8 @@ completed upgrades and attacks, not merely run without exceptions.
 
 Do not change the declaration copies independently: update from the engine revision
 in engine.json and run scripts/check-api.mjs. Keep the bundler's atomic publish step.
+
+`npm test` covers atomic publishing, rejection of runtime imports, and strict
+continuation trace validation. Keep those checks in release CI as well as pull
+requests. Qualification coverage is scenario-wide across both AI competitors;
+telemetry about an attack or zone request is not proof that an order executed.

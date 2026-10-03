@@ -1,6 +1,7 @@
-let pending = null,
-  nextBuild = 0,
-  zoned = false;
+// Persist scheduling and action IDs; reacquire observed buildings each decision.
+let pending = null;
+let nextBuild = 0;
+let zoned = false;
 /** @param {import('../types/glob2-v2').ContextV2} ctx
  * @param {import('../types/glob2-v2').ManagedBuilding[]} buildings
  * @param {import('../types/glob2').Unit[]} units
@@ -52,6 +53,7 @@ export function economy(ctx, buildings, units, home, planConstruction) {
   let family = null;
   if (inns.length < wantedInns) family = "inn";
   else {
+    // Pairs use stable building family codes (shortType), not variant IDs.
     const progression = [
       ["racetrack", 3],
       // Swimming lets workers harvest algae needed by schools.

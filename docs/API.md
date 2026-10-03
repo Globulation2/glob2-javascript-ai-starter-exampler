@@ -75,7 +75,8 @@ exact-coordinate creation of an exploration flag, with a variant ID obtained fro
 
 Publish compact named values with `ctx.telemetry.set`. Use a stable prefix such as
 `economy.` to group related fields. Current values, units and update ticks appear
-in the common in-game AI telemetry dialog. During play only own/allied controllers
+in the common in-game AI telemetry dialog. Choose a player by number/name, then
+search field names, descriptions or current values (ASCII case-insensitive). During play only own/allied controllers
 are available; spectating and replays show all controllers. New replay recordings
 carry sampled telemetry without rerunning AI decisions.
 

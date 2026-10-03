@@ -2,8 +2,8 @@ import { economy } from "./economy.js";
 import { technology } from "./technology.js";
 import { military } from "./military.js";
 // Only plain data persists. The engine saves these module variables automatically.
-let nextDecision = 0,
-  decisions = 0;
+let nextDecision = 0;
+let decisions = 0;
 export function metadata() {
   return {
     apiVersion: 2,

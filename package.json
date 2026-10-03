@@ -1,5 +1,5 @@
 {
-  "name": "glob2-javascript-ai-example",
+  "name": "glob2-javascript-ai-starter-exampler",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -8,7 +8,7 @@
     "watch": "node scripts/build.mjs --watch",
     "check": "npm run build && node scripts/check.mjs",
     "types": "tsc --allowJs --checkJs --noEmit --moduleResolution bundler --module esnext --target es2020 src/*.js",
-    "test": "node --test scripts/test-build.mjs",
+    "test": "node --test scripts/test-build.mjs scripts/test-qualification.mjs",
     "qualify": "npm run build && node scripts/qualify.mjs"
   },
   "devDependencies": {

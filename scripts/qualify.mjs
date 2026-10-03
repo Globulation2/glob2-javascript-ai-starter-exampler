@@ -1,5 +1,6 @@
 // Run the actual bundled program, retaining reviewable saves, replays and logs.
 // This is intentionally opt-in: it needs a compatible native Glob2 executable.
+import { compareContinuation } from "./qualification-trace.mjs";
 import { spawnSync } from "node:child_process";
 import { mkdirSync, openSync, closeSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -94,29 +95,6 @@ requireCoverage("military.exploring", (v) => v === "true");
 requireCoverage("colony.guardZone", (v) => v === "true");
 // GCS1 is the engine's detailed per-tick team/entity trace. Aggregate checksums
 // include save-header history, so continuation compares all detailed records.
-function* records(bytes) {
-  if (bytes.toString("ascii", 0, 4) !== "GCS1")
-    throw Error("Unknown checksum format");
-  const teams = bytes.readUInt32LE(4),
-    count = bytes.readUInt32LE(12);
-  let offset = 20;
-  for (let n = 0; n < count; n++) {
-    const tick = bytes.readUInt32LE(offset);
-    offset += 8;
-    const start = offset;
-    for (let t = 0; t < teams; t++) {
-      offset += 4;
-      for (let kind = 0; kind < 2; kind++) {
-        const entities = bytes.readUInt32LE(offset);
-        offset += 4;
-        for (let e = 0; e < entities; e++)
-          offset += 10 + 4 * bytes.readUInt32LE(offset + 6);
-      }
-    }
-    yield { tick, data: bytes.subarray(start, offset) };
-  }
-  if (offset !== bytes.length) throw Error("Malformed checksum trace");
-}
 for (const workers of [1, 4]) {
   const resumed = run(`resume-${workers}`, [
     "--load-game",
@@ -132,27 +110,11 @@ for (const workers of [1, 4]) {
     "--telemetry",
     "checksums",
   ]);
-  const reference = records(
+  const count = compareContinuation(
     readFileSync(resolve(baseline, "game.replay.checksums")),
-  );
-  let expected = reference.next().value,
-    count = 0;
-  for (const actual of records(
     readFileSync(resolve(resumed, "game.replay.checksums")),
-  )) {
-    while (expected && expected.tick < actual.tick)
-      expected = reference.next().value;
-    if (
-      !expected ||
-      expected.tick !== actual.tick ||
-      !expected.data.equals(actual.data)
-    )
-      throw Error(
-        `Continuation diverged at tick ${actual.tick} with ${workers} workers`,
-      );
-    count++;
-  }
-  if (!count) throw Error("Empty continuation trace");
+    { firstTick: 8192, count: 8192 },
+  );
   console.log(`${count} continuation records match with ${workers} workers.`);
 }
 console.log(

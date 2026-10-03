@@ -66,3 +66,39 @@ test("watch publishes complete bundles and keeps the previous file on errors", a
     await rm(cwd, { recursive: true, force: true });
   }
 });
+
+test("bundles reject runtime imports without replacing the last valid file", async () => {
+  const cwd = await mkdtemp(join(tmpdir(), "glob2-ai-import-"));
+  async function build() {
+    const child = spawn(process.execPath, ["scripts/build.mjs"], {
+      cwd,
+      stdio: "ignore",
+    });
+    return new Promise((resolve, reject) => {
+      child.on("error", reject);
+      child.on("exit", resolve);
+    });
+  }
+  try {
+    await cp("src", join(cwd, "src"), { recursive: true });
+    await cp("scripts", join(cwd, "scripts"), { recursive: true });
+    await symlink(
+      resolve("node_modules"),
+      join(cwd, "node_modules"),
+      "junction",
+    );
+    assert.equal(await build(), 0);
+    const bundle = join(cwd, "dist/example.js"),
+      original = await readFile(bundle, "utf8");
+    for (const source of [
+      "export async function step(ctx) { return import(ctx.moduleName); }",
+      'export async function step() { return import("https://example.com/ai.js"); }',
+    ]) {
+      await writeFile(join(cwd, "src/index.js"), source);
+      assert.notEqual(await build(), 0);
+      assert.equal(await readFile(bundle, "utf8"), original);
+    }
+  } finally {
+    await rm(cwd, { recursive: true, force: true });
+  }
+});

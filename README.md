@@ -1,8 +1,11 @@
-# Globulation 2 JavaScript AI example
+# Globulation 2 JavaScript AI starter
 
 A readable colony AI demonstrating API profile 2. It grows food capacity, builds
 training facilities, upgrades, explores, attacks, zones a guard area, and publishes
 telemetry. Playing strength is deliberately secondary to clarity.
+
+[Use this template](https://github.com/Globulation2/glob2-javascript-ai-starter-exampler/generate)
+or download `example.js` from [Releases](https://github.com/Globulation2/glob2-javascript-ai-starter-exampler/releases).
 
 Requires a Glob2 build supporting **JavaScript API profile 2 / save format 129**.
 The compatible engine commit is pinned in [engine.json](engine.json); its integration
@@ -11,7 +14,7 @@ Do not use a profile-1-only release.
 
 ## Build and install
 
-1. Use this template, clone your repository, and install Node.js.
+1. Use this template, clone your repository, and install Node.js 22 or newer.
 2. Run `npm ci`, then `npm run build`. The output is `dist/example.js`.
 3. In Glob2, open **Settings → Custom AIs → Import JavaScript AI** and select it.
 4. In local game setup, choose **Readable Colony** for a computer-controlled seat.
@@ -52,7 +55,8 @@ This is stronger than compile-only `--check-script`, but gameplay still needs te
 
 See [API recipes and execution model](docs/API.md) for the transaction, observation,
 placement and persistence contracts. `npm test` exercises watch rebuilds and failed
-builds, including preservation of the previously published bundle.
+builds, including preservation of the previously published bundle. It also rejects
+runtime imports and tests the save-continuation trace validator.
 
 ## Rules that matter
 
@@ -62,7 +66,7 @@ and ordinary records. Store `building.ref`, then reacquire with
 callback. Persistent closures, class instances, runtime-created functions, runtime
 imports, clocks, filesystem and network access are unsupported.
 
-Owned building property edits become normal queued orders. Getters show pending
+Owned building property edits become normal queued orders. Editable-property getters show pending
 desired values; `.observed` shows the last simulation values. Repeated edits
 coalesce without moving their queue position. Only one order is dispatched per AI
 poll. `ctx.actions.status(id)` distinguishes pending, issued, constructing,
@@ -88,11 +92,13 @@ local matches and save/resume mid-construction. Verify food growth, training,
 upgrades, exploration, attack flags and guard zoning in telemetry/replays. Winning
 is not required. Keep screenshots and replay evidence outside source modules.
 
-## Qualify a strategy change
-
 Run `GLOB2_BIN=/absolute/path/to/glob2 npm run qualify`. This runs a fixed-seed
-complete-game scenario and checks food expansion, training, completed upgrades,
-exploration, attack planning and zoning. It then compares every resumed team/entity
+complete-game scenario with two copies of the starter and checks scenario-wide food expansion, training, completed upgrades,
+exploration, attack planning and a zoning request. These telemetry markers show
+policy decisions; inspect the retained replay for actual combat and applied zones. It then compares every resumed team/entity
 record with uninterrupted play using one and four compute workers. The command
 retains logs, saves, replays and checksum traces under ignored `artifacts/`.
 It fails if a behavior is not exercised, even if the script never throws.
+Coverage is shared across the two competitors: a colony under attack may not reach
+every technology. Continuation requires all 8,192 expected ticks, without gaps;
+a truncated trace cannot count as a successful comparison.

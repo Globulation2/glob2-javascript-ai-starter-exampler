@@ -8,6 +8,15 @@ const atomic = {
   setup(build) {
     build.onEnd(async (result) => {
       if (result.errors.length) return;
+      // A self-contained bundle cannot defer loading code until gameplay.
+      if (
+        Object.values(result.metafile.outputs).some(
+          (output) => output.imports.length,
+        )
+      )
+        throw Error(
+          "The AI bundle must not contain external or dynamic imports.",
+        );
       await mkdir("dist", { recursive: true });
       const temporary = `dist/.example-${randomUUID()}.js`;
       try {
@@ -27,6 +36,8 @@ const options = {
   platform: "neutral",
   target: "es2020",
   write: false,
+  metafile: true,
+  logOverride: { "unsupported-dynamic-import": "error" },
   minify: false,
   splitting: false,
   external: [],
