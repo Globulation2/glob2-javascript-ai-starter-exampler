@@ -1,0 +1,17 @@
+{
+  "name": "glob2-javascript-ai-example",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "watch": "node scripts/build.mjs --watch",
+    "check": "npm run build && node scripts/check.mjs",
+    "types": "tsc --allowJs --checkJs --noEmit --moduleResolution bundler --module esnext --target es2020 src/*.js",
+    "test": "node --test scripts/test-build.mjs"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2",
+    "typescript": "5.9.3"
+  }
+}
